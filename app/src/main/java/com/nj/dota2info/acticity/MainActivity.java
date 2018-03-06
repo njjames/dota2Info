@@ -11,6 +11,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
@@ -31,8 +33,8 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private List<Hero> mHeroList;
-    private RecyclerView mRvInfo;
+    private List<Hero> mHeroList = new ArrayList<>();
+    private RecyclerView mRecyclerView;
     private DrawerLayout mDrawerLayout;
     private GridView mGcCategory;
     private String[] mCategorys = new String[]{
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
             "近战", "远程", "辅助", "法师", "打野", "Gank", "肉盾", "隐身", "治疗", "召唤", "眩晕", "沉默", "减速", "爆发", "闪烁", "后期", "控制"
     };
     private List<String> mCategoryList = new ArrayList<>();
+    private InfoRecycleAdapter mInfoRecycleAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +52,11 @@ public class MainActivity extends AppCompatActivity {
 //        TextView tvTitle = findViewById(R.id.tv_title);
 //        tvTitle.setText("英雄");
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        mRvInfo = findViewById(R.id.rv_info);
+        mRecyclerView = findViewById(R.id.rv_info);
         mGcCategory = findViewById(R.id.gv_category);
         CategoryAdapter categoryAdapter = new CategoryAdapter(this, mCategoryList);
         mGcCategory.setAdapter(categoryAdapter);
+
         Toolbar tlTitle = findViewById(R.id.tl_title);
         tlTitle.setTitle("英雄");
         setSupportActionBar(tlTitle);
@@ -63,8 +67,55 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_jiuguan);
         }
 
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
+        mRecyclerView.setLayoutManager(gridLayoutManager);
+
         requestHeroinfo();
 
+        mGcCategory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                getHeroByCategory(i + 1);
+            }
+        });
+
+    }
+
+    private void getHeroByCategory(int category) {
+        String address = "";
+        if(category <= 3) {
+            address = "http://db.dota2.uuu9.com/API/GetHeroListByHType.ashx?hp=" + category;
+        }else {
+            address = "http://db.dota2.uuu9.com/API/GetHeroListByTag.ashx?tid=" + category;
+        }
+        HttpUtil.sendOkHttpRequest(address, new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String heroListString = response.body().string();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!TextUtils.isEmpty(heroListString)) {
+                            mHeroList = DataUtil.handleHeroListResponse(heroListString);
+                            mInfoRecycleAdapter.notifyDataSetChanged();
+                            mDrawerLayout.closeDrawers();
+                        }else {
+                            Toast.makeText(MainActivity.this, "加载失败...", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "加载失败...", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
     }
 
     private void initdata() {
@@ -87,17 +138,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String heroListString = response.body().string();
-                if (!TextUtils.isEmpty(heroListString)) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!TextUtils.isEmpty(heroListString)) {
                             mHeroList = DataUtil.handleHeroListResponse(heroListString);
-                            showHeroInfo();
+                            mInfoRecycleAdapter = new InfoRecycleAdapter(mHeroList);
+                            mRecyclerView.setAdapter(mInfoRecycleAdapter);
+                        }else {
+                            Toast.makeText(MainActivity.this, "加载失败...", Toast.LENGTH_SHORT).show();
                         }
-                    });
-                }else {
-                    Toast.makeText(MainActivity.this, "加载失败...", Toast.LENGTH_SHORT).show();
-                }
+                    }
+                });
             }
 
             @Override
@@ -112,10 +164,4 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showHeroInfo() {
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
-        mRvInfo.setLayoutManager(gridLayoutManager);
-        InfoRecycleAdapter infoRecycleAdapter = new InfoRecycleAdapter(mHeroList);
-        mRvInfo.setAdapter(infoRecycleAdapter);
-    }
 }
