@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.nj.dota2info.acticity.MainActivity">
+    tools:context="com.nj.dota2info.acticity.MainActivity"
+    android:id="@+id/drawer_layout">
 
 
     <android.support.design.widget.CoordinatorLayout
@@ -37,11 +38,31 @@
     </android.support.design.widget.CoordinatorLayout>
 
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#fff"
-        android:text="Hello World!" />
+        android:background="#cff"
+        android:padding="10dp"
+        android:orientation="vertical">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="全部分类"
+            android:textSize="30sp"
+            android:textColor="#000"
+            android:gravity="center"
+            android:padding="10dp"/>
+
+        <GridView
+            android:id="@+id/gv_category"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:numColumns="3"
+            android:horizontalSpacing="15dp"
+            android:verticalSpacing="15dp">
+
+        </GridView>
+    </LinearLayout>
 </android.support.v4.widget.DrawerLayout>
