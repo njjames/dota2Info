@@ -15,8 +15,11 @@ import java.util.List;
  */
 
 public class DataUtil {
-    public static List<Hero> handleHeroListResponse(String response) {
-        List<Hero> heroList = new ArrayList<>();
+    public static void handleHeroListResponse(String response, List<Hero> heroList) {
+        //这个不能new，否则每次解析之后就不是一个List集合了，recyclerview的Adapter调用notifyDataSetChanged，也就不起作用了
+        //List<Hero> heroList = new ArrayList<>();
+        //解析之前需要把集合清一下，否则看着也不没有改变似的
+        heroList.clear();
         try {
             JSONArray jsonArray = new JSONArray(response);
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -24,10 +27,8 @@ public class DataUtil {
                 Hero hero = new Gson().fromJson(jsonObject.toString(), Hero.class);
                 heroList.add(hero);
             }
-            return heroList;
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return null;
     }
 }

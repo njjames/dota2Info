@@ -1,6 +1,7 @@
 package com.nj.dota2info.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.nj.dota2info.R;
+import com.nj.dota2info.acticity.HeroContentActivity;
 import com.nj.dota2info.gson.Hero;
 
 import java.util.List;
@@ -48,6 +50,13 @@ public class InfoRecycleAdapter extends RecyclerView.Adapter<InfoRecycleAdapter.
         }
         View view = LayoutInflater.from(mContext).inflate(R.layout.info_recycle_item, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
+        viewHolder.mCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, HeroContentActivity.class);
+                mContext.startActivity(intent);
+            }
+        });
         return viewHolder;
     }
 

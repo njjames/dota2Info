@@ -75,7 +75,13 @@ public class MainActivity extends AppCompatActivity {
         mGcCategory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                getHeroByCategory(i + 1);
+                int categoryId = -1;
+                if(i < 18) {
+                    categoryId = i + 1;
+                }else {
+                    categoryId = i + 2;
+                }
+                getHeroByCategory(categoryId);
             }
         });
 
@@ -96,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if (!TextUtils.isEmpty(heroListString)) {
-                            mHeroList = DataUtil.handleHeroListResponse(heroListString);
+                            DataUtil.handleHeroListResponse(heroListString, mHeroList);
                             mInfoRecycleAdapter.notifyDataSetChanged();
                             mDrawerLayout.closeDrawers();
                         }else {
@@ -142,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         if (!TextUtils.isEmpty(heroListString)) {
-                            mHeroList = DataUtil.handleHeroListResponse(heroListString);
+                            DataUtil.handleHeroListResponse(heroListString, mHeroList);
                             mInfoRecycleAdapter = new InfoRecycleAdapter(mHeroList);
                             mRecyclerView.setAdapter(mInfoRecycleAdapter);
                         }else {
